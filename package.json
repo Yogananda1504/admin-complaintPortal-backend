@@ -25,6 +25,7 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "ldap-authentication": "^2.2.9",
+    "ldapjs": "^3.0.7",
     "mongoose": "^8.7.3",
     "nodemon": "^3.1.7"
   },
