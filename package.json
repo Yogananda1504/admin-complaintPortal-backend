@@ -1,0 +1,32 @@
+{
+  "name": "admin-complaintportal-backend",
+  "version": "1.0.0",
+  "description": "Complaint Portal Backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon temp.js",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yogananda1504/admin-complaintPortal-backend.git"
+  },
+  "author": "V.Yogananda Reddy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yogananda1504/admin-complaintPortal-backend/issues"
+  },
+  "homepage": "https://github.com/Yogananda1504/admin-complaintPortal-backend#readme",
+  "dependencies": {
+    "activedirectory2": "^2.2.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "ldap-authentication": "^2.2.9",
+    "mongoose": "^8.7.3",
+    "nodemon": "^3.1.7"
+  },
+  "type": "module"
+}
