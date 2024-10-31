@@ -34,7 +34,7 @@ const complainSchema = new Schema({
         default: "Pending",
         enum: ["Pending", "Resolved"],
     },
-    read: {
+    readStatus:{ 
         type:String,
         default:"Not viewed",
         enum:["Not viewed","Viewed"]
