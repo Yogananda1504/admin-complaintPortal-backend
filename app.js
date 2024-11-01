@@ -2,6 +2,8 @@ import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import loginRoutes from './routes/loginRoutes.js';
+import logoutRoutes from './routes/logoutRoutes.js';
+import HostelComplaintRoutes from './routes/HostelComplainRoutes.js';
 const app =express();
 
 //set the url encoding extended true and use the helmet to secure the app , use cookie parser to parse the cookie , use the express.json() to parse the body of the request
@@ -15,5 +17,7 @@ app.get('/ping', (req, res) => {
 });
 
 app.use('/login', loginRoutes);
+app.use('/logout', logoutRoutes);
+app.use('/hostelComplaints', HostelComplaintRoutes);
 
 export default app;

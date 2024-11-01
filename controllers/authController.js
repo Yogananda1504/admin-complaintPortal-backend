@@ -48,7 +48,10 @@ const authController = async (req, res, next) => {
 		}
 	} catch (err) {
 		console.log(err);
-		return next(new appError("Error in authenticating user", 500));
+		return res.status(500).json({
+			success: false,
+			message: "Internal server error",
+		});	
 	}
 };
 
