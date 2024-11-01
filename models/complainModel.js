@@ -16,7 +16,9 @@ const complainSchema = new Schema({
     },
     complainType: {
         type: String,
-        trim: true
+        trim: true,
+        enum: ["Maintenance", "Hygiene", "Security", "Mess", "Bathroom", "Room", "Noise","Other"]
+
     },
     complainDescription: {
         type: String,
@@ -44,6 +46,7 @@ const complainSchema = new Schema({
 });
 
 complainSchema.index({ studentID: 1 });
+
 
 const Complaints = model('Complaints', complainSchema);
 
