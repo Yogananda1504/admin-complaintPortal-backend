@@ -1,3 +1,4 @@
+// LDAP_AUTHENTICATOR.JS
 import ldap from 'ldapjs';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -13,20 +14,25 @@ class LdapAuthenticator {
             tlsOptions: { rejectUnauthorized: false } // Only use this if your LDAP uses a self-signed cert in dev
         });
 
-        // Construct user DN dynamically
+        // Handle client errors to prevent crashes
+        client.on('error', (err) => {
+            console.error('LDAP Client Error:', err.message);
+            client.unbind();
+        });
+
         const userDN = `cn=${username},${this.baseDN}`;
 
         return new Promise((resolve, reject) => {
-            client.bind(userDN, password , (err) => {
+            client.bind(userDN, password, (err) => {
                 if (err) {
                     console.error("Bind error:", err.message);
-                    client.unbind(); // Always unbind to clean up
-                    return resolve(false); // Authentication failed
+                    client.unbind();
+                    return resolve(false);
                 }
 
                 console.log("Authentication successful");
-                client.unbind(); // Unbind after authentication
-                return resolve(true); // Authentication successful
+                client.unbind();
+                return resolve(true);
             });
         });
     }

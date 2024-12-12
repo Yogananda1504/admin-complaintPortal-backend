@@ -20,6 +20,7 @@
   "dependencies": {
     "activedirectory2": "^2.2.0",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "helmet": "^8.0.0",
@@ -29,5 +30,10 @@
     "mongoose": "^8.7.3",
     "nodemon": "^3.1.7"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0"
+  }
 }
