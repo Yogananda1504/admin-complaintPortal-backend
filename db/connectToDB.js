@@ -10,7 +10,14 @@ const connectToDB = async () => {
 
         if (client) {
             console.log("Connected to DB: ", client.connection.host);
-        }
+            const admin = client.connection.db.admin();
+            const databases = await admin.listDatabases();
+            console.log("Databases:");
+            databases.databases.forEach(db => {
+                console.log(` - ${db.name}`);
+            });
+
+                    }
     } catch (error) {
         console.log(error);
         

@@ -23,12 +23,16 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "faker": "^5.5.3",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "ldap-authentication": "^2.2.9",
     "ldapjs": "^3.0.7",
     "mongoose": "^8.7.3",
-    "nodemon": "^3.1.7"
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.7",
+    "socket.io": "^4.8.1",
+    "winston": "^3.17.0"
   },
   "type": "module",
   "devDependencies": {

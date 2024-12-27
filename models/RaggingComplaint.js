@@ -52,6 +52,9 @@ const raggingComplaint = new Schema({
             },
             message: props => `${props.value} is not a valid email address!`
         }
+    },
+    resolvedAt:{
+        type: Date
     }
 }, {
     timestamps: true

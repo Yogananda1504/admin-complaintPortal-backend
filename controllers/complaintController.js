@@ -30,6 +30,7 @@ import {
 } from "../controllerFunctions/raggingFunctions.js";
 
 export const DataController = async (req, res, next) => {
+    console.log(req.query)
 	try {
 		const category = req.params.category;
 		if (category === "hostel") {
@@ -59,6 +60,7 @@ export const DataController = async (req, res, next) => {
 export const StatusController = async (req, res, next) => {
 	try {
 		const category = req.params.category;
+		console.log("Upating the status of the complaint as : ",req.body.status);
 		if (category == "hostel") {
 			await hostelComplaintStatusController(req, res, next);
 		} else if (category === "academic") {

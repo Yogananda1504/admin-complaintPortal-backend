@@ -1,3 +1,4 @@
+
 /**
  * @file HostelComplaint Model Module
  * @description This module defines the HostelComplaint schema and model for handling hostel-related complaints.
@@ -5,6 +6,8 @@
 
 // This for the hostel wise complaints
 import { model, Schema } from 'mongoose';
+//mention the strict mode for the mongoose
+"use strict";
 
 /**
  * @module models/HostelComplaint
@@ -76,6 +79,9 @@ const HostelComplaintSchema = new Schema({
         type: String,
         default: "Not viewed",
         enum: ["Not viewed", "Viewed"]
+    },
+    resolvedAt:{
+        type: Date
     }
 }, {
     timestamps: true

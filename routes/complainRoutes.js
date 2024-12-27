@@ -8,5 +8,5 @@ router.get("/get-complaints/:category",protect,DataController);
 //This will give the quantitave number of the complaints.
 router.get("/stats/:category",protect,StatsController);
 //This will update the status of the complaints
-router.post("/status/:category",protect,StatusController);
+router.put("/status/:category",protect,StatusController);
 export default router;

@@ -1,76 +1,111 @@
-import HostelComplaint from "../models/HostelComplaints.js"
-import mongoose from "mongoose";
+import HostelComplaint from "../models/HostelComplaints.js";
+import { Hostel_logger as logger } from "../utils/logger.js";
 
 export const hostelDataController = async (req, res, next) => {
 	try {
-		const limit = 30; // Fixed limit of 30 complaints per page
+		console.log(req.query);
+		const filtersString = req.query.filters || "{}";
+		const filters = JSON.parse(filtersString);
+		filters.scholarNumbers = filters.scholarNumbers.filter((num) =>
+			/^\d{10}$/.test(num)
+		);
 
-		// Parse and validate startDate
-		const startDate = req.query.startDate
-			? new Date(req.query.startDate)
-			: new Date(0);
-		if (isNaN(startDate.getTime())) {
-			return res.status(400).json({ error: "Invalid startDate format" });
-		}
+		let filters_check = false;
+		// Helper function to parse and validate dates
+		const parseDate = (dateStr, defaultDate) => {
+			const date = dateStr ? new Date(dateStr) : defaultDate;
+			console.log("parsed date is : ", date);
+			if (isNaN(date.getTime())) {
+				throw new Error("Invalid date format");
+			}
+			return date;
+		};
 
-		// Parse and validate endDate
-		const endDate = req.query.endDate
-			? new Date(req.query.endDate)
-			: new Date();
-		if (isNaN(endDate.getTime())) {
-			return res.status(400).json({ error: "Invalid endDate format" });
-		}
-
-		// Ensure startDate is before endDate
+		// Parse startDate and endDate from filters
+		let startDate = parseDate(filters.startDate, new Date(0));
+		let endDate = parseDate(filters.endDate, new Date());
 		if (startDate > endDate) {
 			return res
 				.status(400)
 				.json({ error: "startDate must be before endDate" });
 		}
 
-		// Parse lastSeenDate and lastSeenId for pagination
-		const lastSeenDate = req.query.lastSeenDate
-			? new Date(req.query.lastSeenDate)
-			: null;
-		const lastSeenId = req.query.lastSeenId
-			? new mongoose.Types.ObjectId(req.query.lastSeenId)
-			: null;
+		// Parse pagination parameters
+		const limit = parseInt(req.query.limit) || 20; // Default limit to 20 if not provided
+		const lastSeenId = req.query.lastSeenId;
 
+		// Build the base query
 		const query = {
 			createdAt: { $gte: startDate, $lte: endDate },
 		};
 
-		// Include cursor-based pagination criteria
-		if (lastSeenDate && lastSeenId) {
-			query.$or = [
-				{ createdAt: { $gt: lastSeenDate } },
-				{ createdAt: lastSeenDate, _id: { $gt: lastSeenId } },
-			];
+		// Apply additional filters
+		if (filters.complaintType) {
+			query.complainType = filters.complaintType;
 		}
 
+		if (filters.scholarNumbers.length > 0) {
+			query.scholarNumber = { $in: filters.scholarNumbers };
+		}
+
+		if (filters.readStatus) {
+			query.readStatus = filters.readStatus;
+		}
+
+		if (filters.status) {
+			query.status = filters.status;
+		}
+
+		if (filters.hostelNumber) {
+			query.hostelNumber = filters.hostelNumber;
+		}
+
+		// If lastSeenId is provided, adjust the query for pagination
+		if (lastSeenId) {
+			const lastComplaint = await HostelComplaint.findById(lastSeenId).lean();
+			if (!lastComplaint) {
+				return res.status(400).json({ error: "Invalid lastSeenId" });
+			}
+			const lastCreatedAt = lastComplaint.createdAt;
+			query.$or = [
+				{ createdAt: { $gt: lastCreatedAt } },
+				{ createdAt: lastCreatedAt, _id: { $gt: lastSeenId } },
+			];
+		}
+		console.log("\nQuery is  :  ", query);
+
+		// Fetch complaints based on the query with pagination
 		const complaints = await HostelComplaint.find(query)
-			.sort({ createdAt: 1, _id: 1 })
+			.sort({ createdAt: 1, _id: 1 }) // Sort by createdAt ascending and then _id ascending
 			.limit(limit)
 			.select(
-				"scholarNumber studentName hostelNumber complainType createdAt status"
+				"scholarNumber studentName complainType createdAt status readStatus complainDescription room hostelNumber attachments"
 			)
 			.lean();
 
-		// Prepare cursor information for the next page
-		let nextLastSeenDate = null;
+		// Determine the nextLastSeenId for pagination
 		let nextLastSeenId = null;
-		if (complaints.length > 0) {
+		if (complaints.length === limit) {
 			const lastComplaint = complaints[complaints.length - 1];
-			nextLastSeenDate = lastComplaint.createdAt;
 			nextLastSeenId = lastComplaint._id;
 		}
 
+		console.log("Complaints fetched:", complaints.length);
+
+		// Map attachments to accessible URLs
+		const complaintsWithUrls = complaints.map((complaint) => ({
+			...complaint,
+			attachments: Array.isArray(complaint.attachments)
+				? complaint.attachments.map((filePath) => ({
+						url: `${req.protocol}://${req.get("host")}/${filePath}`,
+				  }))
+				: [],
+			category: "Hostel",
+		}));
+
 		return res.json({
-			complaints,
-			pagination: {
-				nextLastSeenDate,
-				nextLastSeenId,
-			},
+			complaints: complaintsWithUrls,
+			nextLastSeenId,
 		});
 	} catch (error) {
 		console.error("Error fetching complaints:", error);
@@ -82,21 +117,37 @@ export const hostelDataController = async (req, res, next) => {
 export const hostelComplaintStatusController = async (req, res) => {
 	try {
 		const { id, status } = req.body;
-
-		if (status !== "Resolved" && status !== "Viewed") {
+		console.log("Id is being updated ", id);
+		console.log("Status is being updated ", status);
+		if (status !== "resolved" && status !== "viewed") {
 			return res.status(400).json({ error: "Invalid status" });
 		}
-
+        let complaint;
 		const update = {};
-		if (status === "Resolved") {
+		if (status.trim() === "resolved") {
 			update.status = "Resolved";
-		} else if (status === "Viewed") {
+			update.resolvedAt = new Date();
+			complaint = await HostelComplaint.findByIdAndUpdate(id, update, {
+				new: true,
+			});
+			logger.info(
+				`Admin resolved Hostel complaint ${id} at ${
+					new Date().toISOString().split("T")[0]
+				}`
+			);
+		} else if (status.trim() === "viewed") {
 			update.readStatus = "Viewed";
+			complaint = await HostelComplaint.findByIdAndUpdate(id, update, {
+				new: true,
+			});
+			
+			logger.info(
+				`Admin viewed Hostel complaint ${id} at ${
+					new Date().toISOString().split("T")[0]
+				}`
+			);
 		}
 
-		const complaint = await HostelComplaint.findByIdAndUpdate(id, update, {
-			new: true,
-		});
 		if (!complaint) {
 			return res.status(404).json({ error: "Complaint not found" });
 		}
