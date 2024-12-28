@@ -1,5 +1,31 @@
 import MedicalComplaint from "../models/MedicalComplaint.js";
 import { Medical_logger as logger } from "../utils/logger.js";
+import { checkActivityandProcess } from "../utils/email_automator.js";
+
+export const calculateStats = async () => {
+	const [result] = await MedicalComplaint.aggregate([
+		{
+			$group: {
+				_id: null,
+				totalComplaints: { $sum: 1 },
+				resolvedComplaints: {
+					$sum: { $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0] },
+				},
+				unresolvedComplaints: {
+					$sum: { $cond: [{ $eq: ["$status", "Pending"] }, 1, 0] },
+				},
+				viewedComplaints: {
+					$sum: { $cond: [{ $eq: ["$readStatus", "Viewed"] }, 1, 0] },
+				},
+				notViewedComplaints: {
+					$sum: { $cond: [{ $eq: ["$readStatus", "Not viewed"] }, 1, 0] },
+				},
+			},
+		},
+	]);
+	return result || {};
+};
+
 export const medicalDataController = async (req, res, next) => {
 	try {
 		console.log(req.query);
@@ -78,7 +104,7 @@ export const medicalDataController = async (req, res, next) => {
 			.sort({ createdAt: 1, _id: 1 }) // Sort by createdAt ascending and then _id ascending
 			.limit(limit)
 			.select(
-				"scholarNumber studentName complainType createdAt status readStatus complainDescription attachments"
+				"scholarNumber studentName complainType createdAt status readStatus complainDescription attachments stream year"
 			)
 			.lean();
 
@@ -115,46 +141,51 @@ export const medicalDataController = async (req, res, next) => {
 //Status will update the status like resolve or readStatus like viewed
 export const medicalComplaintStatusController = async (req, res) => {
 	try {
-		let { id, status } = req.body;
+		const { id, status } = req.body;
 
-		console.log("Inside the controller : ", status);
-		if (status !== "resolved" && status !== "viewed") {
+		if (!["resolved", "viewed"].includes(status)) {
 			return res.status(400).json({ error: "Invalid status" });
 		}
-		let complaint;
-		const update = {};
-		if (status === "resolved") {
-			update.status = "Resolved";
-			complaint = await MedicalComplaint.findByIdAndUpdate(id,{ ...update, resolvedAt: new Date() }, {
-				new: true,
-			});
-			logger.info(
-				"Admin resolved Medical complaint  " +
-					id +
-					"  at " +
-					new Date().toISOString().split("T")[0]
-			);
-		} else if (status === "viewed") {
-			update.readStatus = "Viewed";
-			complaint = await MedicalComplaint.findByIdAndUpdate(id, update, {
-				new: true,
-			});
-			logger.info(
-				"Admin viewed Medical complaint  " +
-					id +
-					"  at " +
-					new Date().toISOString().split("T")[0]
-			);
-		}
+
+		const update =
+			status === "resolved"
+				? { status: "Resolved", resolvedAt: new Date() }
+				: { readStatus: "Viewed" };
+
+		const complaint = await MedicalComplaint.findByIdAndUpdate(id, update, {
+			new: true,
+		});
 
 		if (!complaint) {
 			return res.status(404).json({ error: "Complaint not found" });
 		}
 
-		res.json({ success: true, complaint });
+		if (status === "resolved") {
+			await checkActivityandProcess({
+				category: "medical",
+				complaintId: id,
+				activity: "resolved",
+				complaint,
+			});
+		} else {
+			await checkActivityandProcess({
+				category: "medical",
+				complaintId: id,
+				activity: "viewed",
+				complaint,
+			});
+		}
+
+		logger.info(
+			`Admin ${status} Medical complaint ${id} at ${
+				new Date().toISOString().split("T")[0]
+			}`
+		);
+
+		return res.json({ success: true, complaint });
 	} catch (error) {
 		console.error("Internal server error:", error);
-		res.status(500).json({
+		return res.status(500).json({
 			success: false,
 			message: "An error occurred while updating complaint status",
 		});
@@ -163,26 +194,7 @@ export const medicalComplaintStatusController = async (req, res) => {
 
 export const medicalStatsController = async (req, res, next) => {
 	try {
-		const stats = await MedicalComplaint.aggregate([
-			{
-				$group: {
-					_id: null,
-					totalComplaints: { $sum: 1 },
-					resolvedComplaints: {
-						$sum: { $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0] },
-					},
-					unresolvedComplaints: {
-						$sum: { $cond: [{ $eq: ["$status", "Pending"] }, 1, 0] },
-					},
-					viewedComplaints: {
-						$sum: { $cond: [{ $eq: ["$readStatus", "Viewed"] }, 1, 0] },
-					},
-					notViewedComplaints: {
-						$sum: { $cond: [{ $eq: ["$readStatus", "Not viewed"] }, 1, 0] },
-					},
-				},
-			},
-		]);
+		const stats = await calculateStats();
 
 		const {
 			totalComplaints = 0,

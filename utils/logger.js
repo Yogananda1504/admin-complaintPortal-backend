@@ -52,6 +52,8 @@ export const getLogsBetweenDates = async (logPath, startDate, endDate) => {
     }
 };
 
+
+
 // Create loggers for different categories
 const Infrastructure_logger = createCustomLogger('Infrastructure');
 const Academic_logger = createCustomLogger('Academic');
@@ -59,6 +61,7 @@ const Administration_logger = createCustomLogger('Administration');
 const Hostel_logger = createCustomLogger('Hostel');
 const Medical_logger = createCustomLogger('Medical');
 const Ragging_logger = createCustomLogger('Ragging');
+const EmailActivity_logger = createCustomLogger('EmailActivity');
 
 export {
   Infrastructure_logger,
@@ -67,4 +70,5 @@ export {
   Hostel_logger,
   Medical_logger,
   Ragging_logger,
+  EmailActivity_logger
 };

@@ -1,5 +1,30 @@
 import RaggingComplaint from "../models/RaggingComplaint.js";
 import { Ragging_logger as logger } from "../utils/logger.js";
+import { checkActivityandProcess } from "../utils/email_automator.js";
+
+export const calculateStats = async () => {
+	const [result] = await RaggingComplaint.aggregate([
+		{
+			$group: {
+				_id: null,
+				totalComplaints: { $sum: 1 },
+				resolvedComplaints: {
+					$sum: { $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0] },
+				},
+				unresolvedComplaints: {
+					$sum: { $cond: [{ $eq: ["$status", "Pending"] }, 1, 0] },
+				},
+				viewedComplaints: {
+					$sum: { $cond: [{ $eq: ["$readStatus", "Viewed"] }, 1, 0] },
+				},
+				notViewedComplaints: {
+					$sum: { $cond: [{ $eq: ["$readStatus", "Not viewed"] }, 1, 0] },
+				},
+			},
+		},
+	]);
+	return result || {};
+};
 
 export const raggingDataController = async (req, res, next) => {
 	try {
@@ -79,7 +104,7 @@ export const raggingDataController = async (req, res, next) => {
 			.sort({ createdAt: 1, _id: 1 }) // Sort by createdAt ascending and then _id ascending
 			.limit(limit)
 			.select(
-				"scholarNumber studentName complainType createdAt status readStatus complainDescription attachments"
+				"scholarNumber studentName complainType createdAt status readStatus complainDescription attachments stream year"
 			)
 			.lean();
 
@@ -125,9 +150,13 @@ export const raggingComplaintStatusController = async (req, res) => {
 		const update = {};
 		if (status === "resolved") {
 			update.status = "Resolved";
-			complaint = await RaggingComplaint.findByIdAndUpdate(id,{ ...update, resolvedAt: new Date() }, {
-				new: true,
-			});
+			complaint = await RaggingComplaint.findByIdAndUpdate(
+				id,
+				{ ...update, resolvedAt: new Date() },
+				{
+					new: true,
+				}
+			);
 			logger.info(
 				`Admin resolved Ragging complaint ${id} at ${
 					new Date().toISOString().split("T")[0]
@@ -149,6 +178,22 @@ export const raggingComplaintStatusController = async (req, res) => {
 			return res.status(404).json({ error: "Complaint not found" });
 		}
 
+		if (status === "resolved") {
+			await checkActivityandProcess({
+				category: "ragging",
+				complaintId: id,
+				activity: "resolved",
+				complaint,
+			});
+		} else {
+			await checkActivityandProcess({
+				category: "ragging",
+				complaintId: id,
+				activity: "viewed",
+				complaint,
+			});
+		}
+
 		res.json({ success: true, complaint });
 	} catch (error) {
 		console.error("Internal server error:", error);
@@ -161,26 +206,7 @@ export const raggingComplaintStatusController = async (req, res) => {
 
 export const raggingStatsController = async (req, res, next) => {
 	try {
-		const stats = await RaggingComplaint.aggregate([
-			{
-				$group: {
-					_id: null,
-					totalComplaints: { $sum: 1 },
-					resolvedComplaints: {
-						$sum: { $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0] },
-					},
-					unresolvedComplaints: {
-						$sum: { $cond: [{ $eq: ["$status", "Pending"] }, 1, 0] },
-					},
-					viewedComplaints: {
-						$sum: { $cond: [{ $eq: ["$readStatus", "Viewed"] }, 1, 0] },
-					},
-					notViewedComplaints: {
-						$sum: { $cond: [{ $eq: ["$readStatus", "Not viewed"] }, 1, 0] },
-					},
-				},
-			},
-		]);
+		const stats = await calculateStats();
 
 		const {
 			totalComplaints = 0,
