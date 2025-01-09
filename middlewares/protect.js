@@ -9,8 +9,10 @@ const protect = async (req, res, next) => {
 		const token = req.cookies.jwt;
 		console.log("Token:", token);
 		if (!token) {
+			res.clearCookie('jwt')
 			return res.status(401).json({
 				success: false,
+				logout:true,
 				message: "Unauthorized access,Please Login",
 			});
 		}
@@ -18,16 +20,20 @@ const protect = async (req, res, next) => {
 		const decoded = verifyToken(token);
 		console.log("Decoded:", decoded);
 		if (!decoded) {
+			res.clearCookie('jwt');
 			return res.status(401).json({
 				success: false,
+				logout:true,
 				message: "Uhh-Ohh ! Invalid Token or Token Expired",
 			});
 		}
 
 		next();
 	} catch (err) {
+		console.log(err);
 		return res.status(500).json({
 			success: false,
+			logout:true,
 			message: "Internal Server Error",
 		});
 	}

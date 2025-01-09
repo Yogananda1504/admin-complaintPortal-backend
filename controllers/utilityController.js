@@ -21,6 +21,7 @@ export const serve_complaint = async (req,res)=>{
     if(category==="hostel"){
         let complaint = await HostelComplaint.findById(id);
         complaint = {...complaint._doc,category:"Hostel"};
+        console.log("Admin has requested for the complaint details : ",complaint);
         if(!complaint){
             return res.status(404).json({message:"Complaint not found"});
         }

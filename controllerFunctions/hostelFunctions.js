@@ -46,6 +46,7 @@ export const hostelDataController = async (req, res) => {
 		filters.scholarNumbers = filters.scholarNumbers.filter((num) =>
 			/^\d{10}$/.test(num)
 		);
+		console.log("Initiated the hostelDataController\n");
 
 		const { start: startDate, end: endDate } = validateDates(
 			filters.startDate,
@@ -57,7 +58,7 @@ export const hostelDataController = async (req, res) => {
 				.json({ error: "startDate must be before endDate" });
 
 		const query = {
-			createdAt: { $gte: startDate, $lte: endDate },
+			createdAt: { $gte: startDate, $lte: endDate }, // Use validated endDate
 			...(filters.complaintType && { complainType: filters.complaintType }),
 			...(filters.scholarNumbers.length && {
 				scholarNumber: { $in: filters.scholarNumbers },
@@ -66,6 +67,8 @@ export const hostelDataController = async (req, res) => {
 			...(filters.status && { status: filters.status }),
 			...(filters.hostelNumber && { hostelNumber: filters.hostelNumber }),
 		};
+
+		console.log("\nThe query is : ", query,"\n");
 
 		const limit = parseInt(req.query.limit) || 20;
 
@@ -86,19 +89,21 @@ export const hostelDataController = async (req, res) => {
 		}
 
 		const complaints = await HostelComplaint.find(query)
-			.sort({ createdAt: 1, _id: 1 })
+			.sort({  _id: 1 })
 			.limit(limit)
 			.select(
-				"scholarNumber studentName complainType createdAt status readStatus complainDescription room hostelNumber attachments "
+				"scholarNumber studentName complainType createdAt status readStatus complainDescription room hostelNumber attachments AdminRemarks AdminAttachments resolvedAt"
 			)
 			.lean();
+		console.log(complaints);
+		console.log("\n", complaints.length);
 
 		const nextLastSeenId =
 			complaints.length === limit
 				? complaints[complaints.length - 1]._id
 				: null;
 
-		res.json({
+		return res.json({
 			complaints: complaints.map((complaint) => ({
 				...complaint,
 				attachments: Array.isArray(complaint.attachments)
@@ -106,6 +111,11 @@ export const hostelDataController = async (req, res) => {
 							url: `${req.protocol}://${req.get("host")}/${filePath}`,
 					  }))
 					: [],
+				AdminAttachments: Array.isArray(complaint.AdminAttachments)
+				? complaint.AdminAttachments.map((filePath) => ({
+						url: `${req.protocol}://${req.get("host")}/${filePath}`,
+				  }))
+				: [],
 				category: "Hostel",
 			})),
 			nextLastSeenId,
@@ -147,7 +157,7 @@ export const hostelComplaintStatusController = async (req, res) => {
 				complaint,
 			});
 		}
-		
+
 		//I need to create a which will take the complaint of the complaint and then forwards the viewing resolution of the complaint to  the student
 		logger.info(
 			`Admin ${status} Hostel complaint ${id} at ${
@@ -172,3 +182,44 @@ export const hostelStatsController = async (req, res) => {
 			.json({ success: false, message: "Error in fetching stats" });
 	}
 };
+
+export const hostelRemarkController = async (req, res) => {
+	try {
+		const AdminAttachments = req.filePaths || [];
+		console.log(req.body);
+		const AdminRemarks = req.body.AdminRemarks;
+		const id = req.body.id;
+
+		if (!id) {
+			return res.status(400).json({ error: "Complaint ID is required" });
+		}
+        
+		const update = {
+			AdminRemarks: AdminRemarks,
+			AdminAttachments: AdminAttachments,
+		};
+
+		const complaint = await HostelComplaint.findByIdAndUpdate(id, update, {
+			new: true,
+		});
+
+		console.log(complaint);
+
+		if (!complaint) {
+			return res.status(404).json({ error: "Complaint not found" });
+		}
+
+		logger.info(
+			`Admin updated remarks for Hostel complaint ${id} at ${new Date().toISOString()}`
+		);
+		res.json({ success: true, complaint });
+	} catch (error) {
+		logger.error(
+			`Error updating remarks for Hostel complaint: ${error.message}`
+		);
+		res
+			.status(500)
+			.json({ success: false, message: "Error updating complaint remarks" });
+	}
+};
+

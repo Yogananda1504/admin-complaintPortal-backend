@@ -68,6 +68,16 @@ const infrastructureComplaint = new Schema({
             message: props => `${props.value} is not a valid email address!`
         }
     },
+    AdminRemarks : {
+        type: String,
+        trim: true
+    },
+    AdminAttachments: {
+        type: [String],
+        default: [],
+        trim: true
+        
+    },
     resolvedAt:{
         type: Date
     }

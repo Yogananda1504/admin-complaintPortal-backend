@@ -61,7 +61,6 @@ export const Resolution = async () => {
 		Ragging: Ragging_rr,
 		Overall: overall_rr,
 	};
-	console.log("Resolution Rate (hours): ", Resolution);
 	return Resolution;
 };
 

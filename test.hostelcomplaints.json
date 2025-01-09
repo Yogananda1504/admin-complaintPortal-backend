@@ -1,165 +1,105 @@
 [{
   "_id": {
-    "$oid": "6763a09cd3c3680a88b56f30"
+    "$oid": "677a41559730a8b8c079e458"
   },
   "scholarNumber": "2211201152",
-  "studentName": "John Doe",
-  "hostelNumber": "H1",
-  "complainType": "Maintenance",
-  "complainDescription": "Leaking tap in bathroom",
-  "attachments": [],
-  "room": "101",
-  "useremail": "john.doe@example.com",
-  "status": "Resolved",
-  "readStatus": "Viewed",
-  "createdAt": {
-    "$date": "2023-10-01T08:00:00.000Z"
-  },
-  "updatedAt": {
-    "$date": "2024-12-22T09:54:29.536Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6763a09cd3c3680a88b56f31"
-  },
-  "scholarNumber": "2211201153",
-  "studentName": "Jane Smith",
-  "hostelNumber": "H2",
-  "complainType": "Hygiene",
-  "complainDescription": "Unclean common area",
-  "attachments": [],
-  "room": "202",
-  "useremail": "jane.smith@example.com",
-  "status": "Resolved",
-  "readStatus": "Viewed",
-  "createdAt": {
-    "$date": "2023-10-02T08:00:00.000Z"
-  },
-  "updatedAt": {
-    "$date": "2024-12-22T10:47:51.096Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6763a09cd3c3680a88b56f32"
-  },
-  "scholarNumber": "2211201154",
-  "studentName": "Alice Johnson",
-  "hostelNumber": "H3",
-  "complainType": "Security",
-  "complainDescription": "Broken lock on main door",
-  "attachments": [],
-  "room": "303",
-  "useremail": "alice.johnson@example.com",
-  "status": "Resolved",
-  "readStatus": "Viewed",
-  "createdAt": {
-    "$date": "2023-10-03T08:00:00.000Z"
-  },
-  "updatedAt": {
-    "$date": "2024-12-21T06:24:07.037Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6763a09cd3c3680a88b56f33"
-  },
-  "scholarNumber": "2211201155",
-  "studentName": "Bob Brown",
-  "hostelNumber": "H4",
-  "complainType": "Mess",
-  "complainDescription": "Food quality issues",
-  "attachments": [],
-  "room": "404",
-  "useremail": "bob.brown@example.com",
-  "status": "Pending",
-  "readStatus": "Viewed",
-  "createdAt": {
-    "$date": "2023-10-04T08:00:00.000Z"
-  },
-  "updatedAt": {
-    "$date": "2024-12-21T06:24:10.186Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6763a09cd3c3680a88b56f34"
-  },
-  "scholarNumber": "2211201156",
-  "studentName": "Carol Davis",
+  "studentName": "Velpucherla Yogananda Reddy",
   "hostelNumber": "H5",
   "complainType": "Bathroom",
-  "complainDescription": "No hot water",
+  "complainDescription": "sdf",
   "attachments": [],
-  "room": "505",
-  "useremail": "carol.davis@example.com",
+  "room": "C063",
+  "useremail": "vynr1504@gmail.com",
   "status": "Resolved",
   "readStatus": "Viewed",
+  "AdminRemarks": "jhcsdfvgbnh",
+  "AdminAttachments": [
+    "uploads\\attachments-1736275875364.png"
+  ],
   "createdAt": {
-    "$date": "2023-10-05T08:00:00.000Z"
+    "$date": "2025-01-05T08:22:45.665Z"
   },
   "updatedAt": {
-    "$date": "2024-12-22T10:47:59.001Z"
+    "$date": "2025-01-07T18:51:15.392Z"
+  },
+  "__v": 0,
+  "resolvedAt": {
+    "$date": "2025-01-07T09:17:36.847Z"
   }
 },
 {
   "_id": {
-    "$oid": "6763a09cd3c3680a88b56f35"
+    "$oid": "677d35213513fa5e5db2e6bf"
   },
-  "scholarNumber": "2211201157",
-  "studentName": "David Wilson",
-  "hostelNumber": "H6",
-  "complainType": "Room",
-  "complainDescription": "Air conditioning not working",
-  "attachments": [],
-  "room": "606",
-  "useremail": "david.wilson@example.com",
-  "status": "Pending",
-  "readStatus": "Viewed",
-  "createdAt": {
-    "$date": "2023-10-06T08:00:00.000Z"
-  },
-  "updatedAt": {
-    "$date": "2024-12-22T13:43:06.444Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6763a09cd3c3680a88b56f36"
-  },
-  "scholarNumber": "2211201158",
-  "studentName": "Eve Miller",
-  "hostelNumber": "H7",
-  "complainType": "Noise",
-  "complainDescription": "Loud music at night",
-  "attachments": [],
-  "room": "707",
-  "useremail": "eve.miller@example.com",
-  "status": "Resolved",
-  "readStatus": "Viewed",
-  "createdAt": {
-    "$date": "2023-10-07T08:00:00.000Z"
-  },
-  "updatedAt": {
-    "$date": "2024-12-22T09:51:20.399Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6763a09cd3c3680a88b56f37"
-  },
-  "scholarNumber": "1008",
-  "studentName": "Frank Taylor",
-  "hostelNumber": "H8",
-  "complainType": "Other",
-  "complainDescription": "Lost key",
-  "attachments": [],
-  "room": "808",
-  "useremail": "frank.taylor@example.com",
+  "scholarNumber": "2211201152",
+  "studentName": "Velpucherla Yogananda Reddy",
+  "hostelNumber": "H5",
+  "complainType": "Mess",
+  "complainDescription": "Testing from mobile",
+  "attachments": [
+    "uploads\\attachments-1736258846787.png"
+  ],
+  "room": "C063",
+  "useremail": "vynr1504@gmail.com",
   "status": "Pending",
   "readStatus": "Not viewed",
+  "AdminRemarks": "",
+  "AdminAttachments": [],
   "createdAt": {
-    "$date": "2023-10-08T08:00:00.000Z"
-  }
+    "$date": "2025-01-07T14:07:29.284Z"
+  },
+  "updatedAt": {
+    "$date": "2025-01-07T18:15:03.873Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "677d35b43513fa5e5db2e6c6"
+  },
+  "scholarNumber": "2211201152",
+  "studentName": "Velpucherla Yogananda Reddy",
+  "hostelNumber": "H5",
+  "complainType": "Security",
+  "complainDescription": "Testing",
+  "attachments": [],
+  "room": "C062",
+  "useremail": "vynr1504@gmail.com",
+  "status": "Pending",
+  "readStatus": "Not viewed",
+  "AdminRemarks": "",
+  "AdminAttachments": [],
+  "createdAt": {
+    "$date": "2025-01-07T14:09:56.966Z"
+  },
+  "updatedAt": {
+    "$date": "2025-01-07T14:11:12.571Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "677d7780a68a53a8a2496713"
+  },
+  "scholarNumber": "2211201152",
+  "studentName": "Velpucherla Yogananda Reddy",
+  "hostelNumber": "H8",
+  "complainType": "Room",
+  "complainDescription": "vbnm,",
+  "attachments": [
+    "uploads\\attachments-1736275840884.PNG"
+  ],
+  "room": "C063",
+  "useremail": "vynr1504@gmail.com",
+  "status": "Pending",
+  "readStatus": "Not viewed",
+  "AdminRemarks": "",
+  "AdminAttachments": [],
+  "createdAt": {
+    "$date": "2025-01-07T18:50:41.028Z"
+  },
+  "updatedAt": {
+    "$date": "2025-01-07T18:50:41.028Z"
+  },
+  "__v": 0
 }]

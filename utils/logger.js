@@ -62,6 +62,7 @@ const Hostel_logger = createCustomLogger('Hostel');
 const Medical_logger = createCustomLogger('Medical');
 const Ragging_logger = createCustomLogger('Ragging');
 const EmailActivity_logger = createCustomLogger('EmailActivity');
+const Error_logger = createCustomLogger('Error');
 
 export {
   Infrastructure_logger,

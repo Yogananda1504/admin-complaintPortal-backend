@@ -16,10 +16,21 @@ dotenv.config();
  */
 const transporter = nodemailer.createTransport({
     service: "gmail",
-    auth:{
-        user:process.env.EMAIL_USER,
-        pass:process.env.EMAIL_PASS, // Updated to use environment variable
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
     },
+    debug: true, // Enable debug logs
+    logger: true // Enable logger
+});
+
+// Verify the connection configuration
+transporter.verify(function (error, success) {
+    if (error) {
+        console.log("Error verifying transport:", error);
+    } else {
+        console.log("Server is ready to take our messages");
+    }
 });
 
 export default transporter;

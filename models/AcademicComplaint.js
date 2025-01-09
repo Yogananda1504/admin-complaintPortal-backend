@@ -35,11 +35,15 @@ const academicComaplaint = new Schema({
     complainType: {
         type: String,
         trim: true,
-        enum: ["Faculty", "Timetable", "Course", "other"]
+        enum: ["Faculty", "Timetable", "Course", "Other"]
     },
     stream: {
         type: String,
         required: [true, "Stream is required!"],
+    },
+    year:{
+        type: String,
+        required: [true, "Year is required!"]
     },
     department: {
         type: String,
@@ -72,9 +76,19 @@ const academicComaplaint = new Schema({
             message: props => `${props.value} is not a valid email address!`
         }
     },
+    AdminRemarks : {
+        type: String,
+        trim: true
+    },
+    AdminAttachments : {
+        type: [String],
+        default:[],
+        trim:true
+    },
     resolvedAt:{
         type: Date
     }
+
 }, {
     timestamps: true
 });

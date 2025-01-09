@@ -18,10 +18,13 @@ import { calculateStats as medicalStats } from './controllerFunctions/medicalFun
 import { calculateStats as infrastructureStats } from './controllerFunctions/infrastructureFunctions.js';
 import { calculateStats as raggingStats } from './controllerFunctions/raggingFunctions.js';
 import  validateRoutes from './routes/validateRoutes.js';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import  fs from 'fs';
 const app = express();
 app.use(morgan('dev'));
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173','https://s9x3g1x0-5173.inc1.devtunnels.ms'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'csrf-token']
@@ -31,11 +34,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cookieParser());
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: ['http://localhost:5173','http://localhost:4000','https://s9x3g1x0-5173.inc1.devtunnels.ms'],
         credentials: true
     },
     pingTimeout: 120000, // How long to wait for pong response
@@ -147,7 +152,20 @@ io.on('connection', async (socket) => {
         socket.disconnect();
     }
 });
-
+app.use('/uploads', (req, res, next) => {
+    const filePath = path.join(__dirname, 'uploads', req.path);
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(404).json({
+                status: 'error',
+                statusCode: 404,
+                message: `Cannot find ${req.originalUrl} on this server`
+            });
+        }
+        express.static(path.join(__dirname, 'uploads'))(req, res, next);
+    });
+});
 app.get('/ping', (req, res) => res.send('pong'));
 app.use('/login', loginRoutes);
 app.use('/logout', logoutRoutes);

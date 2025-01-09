@@ -30,6 +30,14 @@ const medicalComplaint = new Schema({
         required: [true, "Student name is required!"],
         trim: true
     },
+    stream: {
+        type: String,
+        required: [true, "Stream is required!"],
+    },
+    year:{
+        type: String,
+        required: [true, "Year is required!"]
+    },
     complainType: {
         type: String,
         trim: true,
@@ -60,6 +68,16 @@ const medicalComplaint = new Schema({
             },
             message: props => `${props.value} is not a valid email address!`
         }
+    },
+    AdminRemarks : {
+        type: String,
+        trim: true
+    },
+    AdminAttachments: {
+        type: [String],
+        default: [],
+        trim: true
+        
     },
     resolvedAt:{
         type: Date

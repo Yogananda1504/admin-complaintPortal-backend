@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Yogananda1504/admin-complaintPortal-backend#readme",
   "dependencies": {
+    "@datastax/astra-db-ts": "^1.5.0",
     "activedirectory2": "^2.2.0",
     "bull": "^4.16.5",
     "cookie-parser": "^1.4.7",
@@ -31,6 +32,7 @@
     "ldapjs": "^3.0.7",
     "mongoose": "^8.7.3",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
     "socket.io": "^4.8.1",

@@ -21,10 +21,18 @@ const raggingComplaint = new Schema({
         type: String,
         required: [true, "Student ID is required!"]
     },
+    stream: {
+        type: String,
+        required: [true, "Stream is required!"],
+    },
     studentName: {
         type: String,
         required: [true, "Student name is required!"],
         trim: true
+    },
+    year:{
+        type: String,
+        required: [true, "Year is required!"]
     },
     complainDescription: {
         type: String,
@@ -52,6 +60,15 @@ const raggingComplaint = new Schema({
             },
             message: props => `${props.value} is not a valid email address!`
         }
+    },
+    AdminRemarks : {
+        type: String,
+        trim: true
+    },
+    AdminAttachments : {
+        type: [String],
+        default: [],
+        trim: true
     },
     resolvedAt:{
         type: Date
