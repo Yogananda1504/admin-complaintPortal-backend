@@ -20,8 +20,6 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
     },
-    debug: true, // Enable debug logs
-    logger: true // Enable logger
 });
 
 // Verify the connection configuration
