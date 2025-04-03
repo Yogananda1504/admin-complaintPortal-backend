@@ -27,7 +27,7 @@ const HostelComplaintSchema = new Schema({
     scholarNumber: {
         type: String, 
         required: [true, "Student ID is required!"],
-        index: true,
+       
     },
     studentName: {
         type: String,
@@ -37,11 +37,12 @@ const HostelComplaintSchema = new Schema({
     hostelNumber: {
         type: String,
         required: [true, "Hostel number is required!"],
+        enum:["H1","H2","H3","H4","H5","H6","H7","H8","H9","H10","H11","H12"]
     },
     complainType: {
         type: String,
         trim: true,
-        enum: ["Maintenance", "Hygiene", "Security", "Mess", "Bathroom", "Room", "Noise", "Other"],
+        enum: ["Maintenance", "Hygiene", "Security", "Mess", "Bathroom", "Room", "Internet","Noise", "Other"],
         required: [true, "Complaint type is required!"]
     },
     complainDescription: {

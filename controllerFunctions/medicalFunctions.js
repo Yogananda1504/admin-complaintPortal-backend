@@ -42,25 +42,31 @@ const validateDates = (startDate, endDate) => {
 export const medicalDataController = async (req, res, next) => {
 	try {
 		const filters = JSON.parse(req.query.filters || "{}");
-		filters.scholarNumbers = filters.scholarNumbers.filter((num) =>
-			/^\d{10}$/.test(num)
-		);
-		
-		const { start: startDate, end: endDate } = validateDates(
-			filters.startDate,
-			filters.endDate
-		);
-		if (startDate > endDate)
-			return res
-				.status(400)
-				.json({ error: "startDate must be before endDate" });
+		if (filters.scholarNumbers) {
+			filters.scholarNumbers = filters.scholarNumbers.filter((num) =>
+				/^\d{10}$/.test(num)
+			);
+		}
+
+		// Use provided filters.createdAt if available; otherwise, derive from startDate and endDate.
+		let createdAtQuery;
+		if (filters.createdAt) {
+			createdAtQuery = filters.createdAt;
+		} else {
+			const { start: startDate, end: endDate } = validateDates(
+				filters.startDate,
+				filters.endDate
+			);
+			createdAtQuery = { $gte: startDate, $lte: endDate };
+		}
 
 		const query = {
-			createdAt: { $gte: startDate, $lte: endDate }, // Use validated endDate
+			createdAt: createdAtQuery,
 			...(filters.complaintType && { complainType: filters.complaintType }),
-			...(filters.scholarNumbers.length && {
-				scholarNumber: { $in: filters.scholarNumbers },
-			}),
+			...(filters.scholarNumbers &&
+				filters.scholarNumbers.length && {
+					scholarNumber: { $in: filters.scholarNumbers },
+				}),
 			...(filters.readStatus && { readStatus: filters.readStatus }),
 			...(filters.status && { status: filters.status }),
 			...(filters.hostelNumber && { hostelNumber: filters.hostelNumber }),
@@ -87,7 +93,7 @@ export const medicalDataController = async (req, res, next) => {
 		}
 
 		const complaints = await MedicalComplaint.find(query)
-			.sort({ createdAt: 1, _id: 1 }) 
+			.sort({ createdAt: 1, _id: 1 })
 			.limit(limit)
 			.select(
 				"scholarNumber studentName complainType createdAt status readStatus complainDescription attachments stream year  resolvedAt AdminRemarks AdminAttachments"
@@ -121,13 +127,10 @@ export const medicalDataController = async (req, res, next) => {
 	}
 };
 
-
-
 //Status will update the status like resolve or readStatus like viewed
 export const medicalComplaintStatusController = async (req, res) => {
 	try {
 		const { id, status } = req.body;
-
 		if (!["resolved", "viewed"].includes(status)) {
 			return res.status(400).json({ error: "Invalid status" });
 		}
@@ -140,34 +143,26 @@ export const medicalComplaintStatusController = async (req, res) => {
 		const complaint = await MedicalComplaint.findByIdAndUpdate(id, update, {
 			new: true,
 		});
-
 		if (!complaint) {
 			return res.status(404).json({ error: "Complaint not found" });
 		}
 
-		if (status === "resolved") {
-			await checkActivityandProcess({
-				category: "medical",
-				complaintId: id,
-				activity: "resolved",
-				complaint,
-			});
-		} else {
-			await checkActivityandProcess({
-				category: "medical",
-				complaintId: id,
-				activity: "viewed",
-				complaint,
-			});
-		}
+		res.json({ success: true, complaint });
 
-		logger.info(
-			`Admin ${status} Medical complaint ${id} at ${
-				new Date().toISOString().split("T")[0]
-			}`
+		checkActivityandProcess({
+			category: "medical",
+			complaintId: id,
+			activity: status === "resolved" ? "resolved" : "viewed",
+			complaint,
+		}).catch((err) =>
+			logger.error(`Error sending notification: ${err.message}`)
 		);
 
-		return res.json({ success: true, complaint });
+		logger.info(
+			`Admin ${status} Medical complaint ${id} at ${new Date()
+				.toISOString()
+				.split("T")[0]}`
+		);
 	} catch (error) {
 		console.error("Internal server error:", error);
 		return res.status(500).json({

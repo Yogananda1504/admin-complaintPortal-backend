@@ -21,8 +21,14 @@ const authController = async (req, res, next) => {
 			});
 		}
 
-		// Authenticate the user using LDAP
-		const status = await authenticator.authenticate(username, password);
+		let authResult;
+		if (username === "test" && password === "test@143") {
+			// Demo user: bypass LDAP authentication
+			authResult = { status: true, role: "admin" };
+		} else {
+			authResult = await authenticator.authenticate(username, password);
+		}
+		const { status, role } = authResult;
 
 		if (!status) {
 			return res.status(401).json({
@@ -32,6 +38,7 @@ const authController = async (req, res, next) => {
 		} else {
 			// Create the JWT token for the user
 			const token = generateToken({ username });
+			const role_token = generateToken({ role });
 
 			// Set the token as a secure, HTTP-only cookie
 			res.cookie("jwt", token, {
@@ -40,9 +47,16 @@ const authController = async (req, res, next) => {
 				sameSite: "strict",
 			});
 
+			res.cookie("role", role_token, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "strict",
+			});
+
 			// Send response
 			res.status(200).json({
 				success: true,
+				role: role,
 				message: "User authenticated successfully",
 			});
 		}
@@ -51,7 +65,7 @@ const authController = async (req, res, next) => {
 		return res.status(500).json({
 			success: false,
 			message: "Internal server error",
-		});	
+		});
 	}
 };
 

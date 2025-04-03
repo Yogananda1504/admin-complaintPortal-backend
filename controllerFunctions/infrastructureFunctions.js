@@ -41,11 +41,14 @@ const validateDates = (startDate, endDate) => {
 
 export const InfrastructureDataController = async (req, res) => {
 	try {
+		console.log("\nFetching the Infrastructure Data from the database\n");
 		const filters = JSON.parse(req.query.filters || "{}");
+		console.log("Applied filters:", filters); // Added log for debugging
+
 		filters.scholarNumbers = filters.scholarNumbers.filter((num) =>
 			/^\d{10}$/.test(num)
 		);
-		
+
 		const { start: startDate, end: endDate } = validateDates(
 			filters.startDate,
 			filters.endDate
@@ -56,17 +59,15 @@ export const InfrastructureDataController = async (req, res) => {
 				.json({ error: "startDate must be before endDate" });
 
 		const query = {
-			createdAt: { $gte: startDate, $lte: endDate }, // Use validated endDate
-			...(filters.complaintType && { complainType: filters.complaintType }),
+			createdAt: { $gte: startDate, $lte: endDate },
+			...(filters.complainType && { complainType: filters.complainType }), 
 			...(filters.scholarNumbers.length && {
 				scholarNumber: { $in: filters.scholarNumbers },
 			}),
 			...(filters.readStatus && { readStatus: filters.readStatus }),
 			...(filters.status && { status: filters.status }),
-			...(filters.hostelNumber && { hostelNumber: filters.hostelNumber }),
 		};
-
-		console.log("\nThe query is : ", query, "\n");
+		
 
 		const limit = parseInt(req.query.limit) || 20;
 
@@ -86,15 +87,14 @@ export const InfrastructureDataController = async (req, res) => {
 			];
 		}
 
-		const complaints = await InfrastructureComplaint.find(query)
-			.sort({ _id: 1 })
+		const complaints = await InfrastructureComplaint.find(query) // Ensure query is used
+			.sort({ createdAt: 1, _id: 1 }) 
 			.limit(limit)
 			.select(
-				"scholarNumber studentName complainType createdAt status readStatus complainDescription  attachments AdminRemarks AdminAttachments resolvedAt location"
+				"scholarNumber studentName complainType createdAt status readStatus complainDescription attachments resolvedAt AdminRemarks AdminAttachments landmark"
 			)
 			.lean();
-		console.log(complaints);
-		console.log("\n", complaints.length);
+		console.log("\nComplaints are : ", complaints, "\n");
 
 		const nextLastSeenId =
 			complaints.length === limit

@@ -150,20 +150,25 @@ export const administrationComplaintStatusController = async (req, res) => {
 			return res.status(404).json({ error: "Complaint not found" });
 		}
 
-		if (status === "resolved") {
-			await checkActivityandProcess({
-				category: "administration",
-				complaintId: id,
-				activity: "resolved",
-				complaint,
-			});
-		} else {
-			await checkActivityandProcess({
-				category: "administration",
-				complaintId: id,
-				activity: "viewed",
-				complaint,
-			});
+		// Try to send email notifications but don't wait for the result
+		try {
+			if (status === "resolved") {
+				checkActivityandProcess({
+					category: "administration",
+					complaintId: id,
+					activity: "resolved",
+					complaint,
+				}).catch(err => logger.error(`Email error: ${err.message}`));
+			} else {
+				checkActivityandProcess({
+					category: "administration",
+					complaintId: id,
+					activity: "viewed",
+					complaint,
+				}).catch(err => logger.error(`Email error: ${err.message}`));
+			}
+		} catch (emailError) {
+			logger.error(`Failed to process email notification: ${emailError.message}`);
 		}
 
 		const action = status === "resolved" ? "resolved" : "viewed";

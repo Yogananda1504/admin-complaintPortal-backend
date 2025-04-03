@@ -1,0 +1,2 @@
+Here this controller will be having the map of the category,list of complaint types which the User can Access
+-For suppose the user can read the Data of the 

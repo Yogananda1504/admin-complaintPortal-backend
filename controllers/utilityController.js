@@ -14,7 +14,7 @@ import { getLogsBetweenDates } from '../utils/logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const serve_complaint = async (req,res)=>{
+export const serve_complaint = async (req,res) =>{
     const id = req.query.id;
     console.log("Id is ",id);
     const category = req.params.category;

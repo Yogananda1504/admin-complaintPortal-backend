@@ -98,3 +98,5 @@ export const resolutionRate = async (Model) => {
 	});
 	return complaints.length > 0 ? total / complaints.length : 0;
 };
+
+

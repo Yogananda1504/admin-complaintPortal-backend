@@ -114,7 +114,7 @@ export const raggingDataController = async (req, res, next) => {
 							url: `${req.protocol}://${req.get("host")}/${filePath}`,
 					  }))
 					: [],
-				category: "Medical",
+				category: "Ragging",
 			})),
 			nextLastSeenId,
 		});

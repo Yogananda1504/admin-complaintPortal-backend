@@ -7,7 +7,7 @@ const protect = async (req, res, next) => {
 	try {
 		// Extract the token from the req
 		const token = req.cookies.jwt;
-		console.log("Token:", token);
+		const role_token = req.cookies.role;
 		if (!token) {
 			res.clearCookie('jwt')
 			return res.status(401).json({
@@ -18,7 +18,15 @@ const protect = async (req, res, next) => {
 		}
 
 		const decoded = verifyToken(token);
-		console.log("Decoded:", decoded);
+		const decoded_role = verifyToken(role_token)
+		if (!decoded_role) {
+			res.clearCookie('jwt');
+			return res.status(401).json({
+				success: false,
+				logout:true,
+				message: "Uhh-Ohh ! Invalid Token or Token Expired",
+			});
+		}
 		if (!decoded) {
 			res.clearCookie('jwt');
 			return res.status(401).json({
@@ -26,6 +34,11 @@ const protect = async (req, res, next) => {
 				logout:true,
 				message: "Uhh-Ohh ! Invalid Token or Token Expired",
 			});
+		}
+		if(decoded_role.role)
+		{
+			req.role = decoded_role.role;
+			console.log("The role of the user is :  ", decoded_role.role);
 		}
 
 		next();

@@ -2,6 +2,10 @@ import AcademicComplaint from "../models/AcademicComplaint.js";
 import { Academic_logger as logger } from "../utils/logger.js";
 import { checkActivityandProcess } from "../utils/email_automator.js"; //For the mailing purpose
 
+/**
+ * Aggregates academic complaints to calculate and return counts for total, resolved,
+ * unresolved, viewed, and not viewed complaints.
+ */
 export const calculateStats = async () => {
 	const [result] = await AcademicComplaint.aggregate([
 		{
@@ -148,21 +152,24 @@ export const academicComplaintStatusController = async (req, res) => {
 			return res.status(404).json({ error: "Complaint not found" });
 		}
 
-		await checkActivityandProcess({
+		res.json({ success: true, complaint });
+
+		checkActivityandProcess({
 			category: "academic",
 			complaintId: id,
 			activity: normalizedStatus,
 			complaint,
+		}).catch((mailError) => {
+			logger.error("Mail update error:", mailError);
 		});
 
 		logger.info(
-			`Admin ${normalizedStatus} Academic complaint ${id} on ${
-				new Date().toISOString().split("T")[0]
-			}`
+			`Admin ${normalizedStatus} Academic complaint ${id} on ${new Date()
+				.toISOString()
+				.split("T")[0]}`
 		);
-
-		return res.json({ success: true, complaint });
 	} catch (error) {
+		console.error("Internal server error:", error.message);
 		return res.status(500).json({
 			success: false,
 			message: "Error updating complaint status",

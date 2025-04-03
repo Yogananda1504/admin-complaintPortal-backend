@@ -3,14 +3,15 @@ import { academicRemarkController } from "../controllerFunctions/academicFunctio
 import { administrationRemarkController } from "../controllerFunctions/administrationFunctions.js";
 import { raggingRemarkController } from "../controllerFunctions/raggingFunctions.js";
 import { medicalRemarkController } from "../controllerFunctions/medicalFunctions.js";
-import { infrastructureRemarkController } from "../controllerFunctions/infrastructureFunctions.js";
+import {departmentRemarkController } from "../controllerFunctions/InfRoleBasedFunctions.js";
+import { hostelRoleBasedRemarkController } from "../controllerFunctions/hostelRoleBasedFunctions.js";
 
 export const RemarksController = async (req, res) => {
 	try {
-		const category  = req.params.category;  
-        console.log(category);
+		const category  = req.params.category.toLowerCase();  
+        console.log("Remarks Category : ",category);
 		if (category === "hostel") {
-			await hostelRemarkController(req, res);
+			await hostelRoleBasedRemarkController(req, res);
 		} else if (category === "academic") {
 			await academicRemarkController(req, res);
 		} else if (category === "administration") {
@@ -20,9 +21,9 @@ export const RemarksController = async (req, res) => {
 		} else if (category === "medical") {
 			await medicalRemarkController(req, res);
 		} else if (category === "infrastructure") {
-			await infrastructureRemarkController(req, res);
+			await departmentRemarkController(req, res);
 		} else {
-            console.log(category);
+            console.log("Invalid Category : " ,category);
 			return res.status(400).json({
 				success: false,
 				message: "Invalid category",

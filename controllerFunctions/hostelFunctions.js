@@ -42,6 +42,9 @@ const validateDates = (startDate, endDate) => {
 
 export const hostelDataController = async (req, res) => {
 	try {
+		// extract role from req
+		// denote the access to respective admins . Implement getHostelNumber according Number
+
 		const filters = JSON.parse(req.query.filters || "{}");
 		filters.scholarNumbers = filters.scholarNumbers.filter((num) =>
 			/^\d{10}$/.test(num)
@@ -121,6 +124,7 @@ export const hostelDataController = async (req, res) => {
 			nextLastSeenId,
 		});
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
@@ -142,23 +146,31 @@ export const hostelComplaintStatusController = async (req, res) => {
 		});
 		if (!complaint)
 			return res.status(404).json({ error: "Complaint not found" });
+
 		if (status === "resolved") {
-			await checkActivityandProcess({
-				category: "hostel",
-				complaintId: id,
-				activity: "resolved",
-				complaint,
-			});
+			try {
+				await checkActivityandProcess({
+					category: "hostel",
+					complaintId: id,
+					activity: "resolved",
+					complaint,
+				});
+			} catch (mailError) {
+				logger.error(`Mail forwarding error: ${mailError.message}`);
+			}
 		} else {
-			await checkActivityandProcess({
-				category: "hostel",
-				complaintId: id,
-				activity: "viewed",
-				complaint,
-			});
+			try {
+				await checkActivityandProcess({
+					category: "hostel",
+					complaintId: id,
+					activity: "viewed",
+					complaint,
+				});
+			} catch (mailError) {
+				logger.error(`Mail forwarding error: ${mailError.message}`);
+			}
 		}
 
-		//I need to create a which will take the complaint of the complaint and then forwards the viewing resolution of the complaint to  the student
 		logger.info(
 			`Admin ${status} Hostel complaint ${id} at ${
 				new Date().toISOString().split("T")[0]
